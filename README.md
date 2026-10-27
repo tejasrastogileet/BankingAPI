@@ -1,3 +1,4 @@
+
 <div align="center">
 
 # 🏦 Banking System
@@ -359,15 +360,18 @@ Banking-System/
 - **Docker & Docker Compose** (for PostgreSQL + Redis)
 
 ### 1. Clone the repository
+
 ```bash
-git clone https://github.com/Muhaimin-Mukammel/Banking-System.git
-cd Banking-System
+git clone https://github.com/tejasrastogileet/BankingAPI.git
+cd BankingAPI
 ```
 
 ### 2. Start infrastructure (PostgreSQL + Redis)
+
 ```bash
 docker-compose up -d
 ```
+
 This starts:
 - **PostgreSQL 16** on host port `5332` → container `5432` (database `banking_system`, user/pass `postgres`/`postgres`)
 - **Redis 7** on host port `6379`
@@ -377,6 +381,7 @@ This starts:
 ### 3. Review configuration
 
 `src/main/resources/application.properties` (shared):
+
 ```properties
 spring.application.name=Banking_System
 spring.profiles.active=dev
@@ -387,6 +392,7 @@ springdoc.swagger-ui.enabled=true
 ```
 
 `src/main/resources/application-dev.properties` (dev profile):
+
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5332/banking_system
 spring.datasource.username=postgres
@@ -395,21 +401,25 @@ spring.datasource.password=postgres
 spring.jpa.hibernate.ddl-auto=validate     # Flyway owns the schema
 spring.flyway.baseline-on-migrate=true
 
-jwt.secret=Y2hhbmdlLXRoaXMtc2VjcmV0LWtleS1mb3ItcHJvZHVjdGlvbi11c2Utb25seSE=
+jwt.secret=Y2hhbmctdGhpcy1zZWNyZXQta2V5LWZvci1wcm9kdWN0aW9uLXVzZS1vbmx5IQ==
 ```
 
 > **⚠️ Before deploying anywhere real:** replace `jwt.secret` with a freshly generated Base64 256-bit key (`openssl rand -base64 32`) and move it — and the datasource credentials — out of version control (e.g. environment variables or a secrets manager). The committed value is a placeholder and is **not safe to use in production.**
 
 ### 4. Build & run
+
 ```bash
 # using the Maven wrapper
 ./mvnw clean install
 ./mvnw spring-boot:run
 ```
+
 The API starts at **http://localhost:8080**.
+
 Interactive API docs: **http://localhost:8080/swagger-ui.html**
 
 ### 5. Run the test suite
+
 ```bash
 ./mvnw test
 ```
@@ -418,7 +428,7 @@ Interactive API docs: **http://localhost:8080/swagger-ui.html**
 
 ## 📡 API Reference
 
-Every `/api/**` route is rate-limited (default **60 requests/min**, keyed by authenticated email or, for anonymous callers, by IP). Overridden limits are noted below. Exceeding a limit returns `429 Too Many Requests` with a `Retry-After` header.
+Every `/api/**` route is rate-limited (default **60 requests/min**, keyed by authenticated email or, for anonymous callers, by IP). Overriding limits are noted below. Exceeding a limit returns `429 Too Many Requests` with a `Retry-After` header.
 
 ### Authentication & User — base path `/api/user`
 
@@ -449,7 +459,9 @@ Every `/api/**` route is rate-limited (default **60 requests/min**, keyed by aut
 | `GET` | `/account/{accountId}` | 🔒 | Transaction history for one owned account, newest first |
 
 ### Sample error envelope
+
 Every failure — validation, business rule, or unexpected exception — returns a consistent shape:
+
 ```json
 {
   "timestamp": "2026-07-09T10:15:30",
@@ -511,6 +523,7 @@ Redis backs Spring's `@Cacheable` abstraction (`RedisCacheConfig`), with a 10-mi
 - **Smoke test**: `BankingSystemApplicationTests` verifies the Spring context loads.
 
 Run everything:
+
 ```bash
 ./mvnw test
 ```
@@ -544,7 +557,7 @@ A close read of the current codebase surfaces some real issues worth knowing abo
 - **No account-level statement/export functionality**, no notifications (email/SMS) on transactions, no scheduled/recurring transfers, no multi-currency support, no interest accrual for `SAVINGS` accounts, and no idempotency key on money-movement endpoints (a retried `POST /deposit` after a dropped response is indistinguishable from a second, legitimate deposit).
 - **Secrets committed as placeholders, not truly externalized.** `jwt.secret` and the database password live directly in `application-dev.properties` inside the repo. Fine for local development, but there's no `application-prod.properties` example, `.env` template, or documented integration with a secrets manager for real deployment.
 
-None of these are unusual for a project at this stage — they're exactly the kind of findings a thorough code review surfaces before a "portfolio project" becomes a "production system." The core money-movement logic (locking, atomicity, invariants) is the hard part, and it's solid.
+None of these are unusual for a project at this stage — they're exactly the kind of findings a thorough code review surfaces before a "portfolio project" becomes a "production system." The core money-movement logic (locking, atomicity, invariants) is the hard part, and it's solid here.
 
 ---
 
@@ -561,6 +574,7 @@ None of these are unusual for a project at this stage — they're exactly the ki
 - [ ] Email/SMS notifications on transactions
 - [ ] Interest accrual for `SAVINGS` accounts
 - [ ] CI/CD pipeline (build, test, and image publish on push)
+- [ ] Remove dead exception classes or wire up the account-lock feature they imply
 - [ ] Production-ready multi-stage Docker build for the application itself (currently only the datastores are containerized)
 - [ ] Structured audit logging for security-relevant events (login, password change, large transfers)
 - [ ] Frontend client (React/Vue)
@@ -587,7 +601,7 @@ Licensed under the **Apache License 2.0** — see [LICENSE](LICENSE) for the ful
 
 <div align="center">
 
-**Author:** Muhaimin Mukammel
+**Author:** Tejas Rastogi
 
 *Java · Spring Boot · Spring Security · JPA/Hibernate · PostgreSQL · Redis · Flyway · JWT · Docker · Bucket4j*
 
